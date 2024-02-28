@@ -11,7 +11,17 @@ app.get('/', (req, res) => {
   res.send("Hello!");
 });
 
+//JSON string representing the entire urlDatabase object, 
+//as it stands at the moment the request is made.
+app.get('/urls.json', (req, res) => {
+  res.json(urlDatabase);
+});
+
+//bolds "World" in "hello World"
+app.get('/hello', (req, res) => {
+  res.send("<html><body>Hello <b>World</b></body></html>\n")
+});
+
 app.listen(PORT, () => {
   console.log(`Example app listening on port${PORT}!`);
 });
-
