@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const PORT = 8080; //default port 8080
 
+//Usee EJS as templating engine
 app.set("view-engine", "ejs");
 
 const urlDatabase = {
