@@ -4,14 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "./node_modules/.bin/nodemon -L express_server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  }
+  ,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/brettg17/tinyapp.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Brett Gelinas, brettgelinas7@gmail.com",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/brettg17/tinyapp/issues"
@@ -20,5 +22,8 @@
   "dependencies": {
     "ejs": "^3.1.9",
     "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
   }
 }
