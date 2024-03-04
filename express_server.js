@@ -49,11 +49,17 @@ app.get("/urls/new", (req, res) => {
 });
 
 
-
 app.get("/urls/:id", (req, res) => {
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id]}
    res.render("urls_show", templateVars);
- });
+});
+
+app.post('/urls/:id/delete', (req, res) => {
+    const idToDelete = req.params.id;
+    delete urlDatabase[idToDelete];
+    res.redirect('urls');
+});
+
 
 //JSON string representing the entire urlDatabase object, 
 //as it stands at the moment the request is made.
