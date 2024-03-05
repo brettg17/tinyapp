@@ -60,6 +60,16 @@ app.post('/urls/:id/delete', (req, res) => {
     res.redirect('/urls');
 });
 
+app.post("urls/:id", (req, res) => {
+  const idToUpdate = req.params.id;
+  const updatedURL = req.body.longURL;
+
+  urlDatabase[idToUpdate] = updatedURL;
+
+  res.redirect("/urls");
+
+})
+
 
 //JSON string representing the entire urlDatabase object, 
 //as it stands at the moment the request is made.
@@ -80,5 +90,3 @@ function generateRandomString() {
 app.listen(PORT, () => {
   console.log(`Example app listening on port${PORT}!`);
 });
-
-
