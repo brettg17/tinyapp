@@ -9,9 +9,32 @@ app.set("view engine", "ejs");
 
 app.use(express.urlencoded({ extended: true }));
 
+function generateRandomString() {
+  let result = '';
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const charactersLength = characters.length;
+  for (let i = 0; i < 6; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}
+
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
+};
+
+const users = {
+  userRandomID: {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur",
+  },
+  user2RandomID: {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk",
+  },
 };
 
 app.get('/', (req, res) => {
@@ -20,7 +43,7 @@ app.get('/', (req, res) => {
 
 app.get("/urls", (req, res) => {
   const templateVars = {
-    username: req.cookies["username"],
+    user: users[req.cookies["user_id"]],
     urls: urlDatabase
   };
   res.render("urls_index", templateVars);
@@ -58,7 +81,7 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${shortURL}`);
 });
 
-app.post("urls/:id", (req, res) => {
+app.post("/urls/:id", (req, res) => {
   const idToUpdate = req.params.id;
   const updatedURL = req.body.longURL;
 
@@ -83,10 +106,26 @@ app.post("/login", (req, res) => {
   res.redirect("/urls");
 });
 
-app.post("/logout", (req,res) => {
-  res.clearCookie("username", req.body.username);
-  res.redirect("/urls");
+app.post('/register', (req, res) => {
+  const { email, password } = req.body;
+  const userId = generateRandomString();
 
+  const newUser = {
+    id: userId,
+    email,
+    password
+  };
+
+  users[userId] = newUser;
+
+  res.cookie("user_id", userId);
+  res.redirect("/urls")
+
+});
+
+app.post("/logout", (req,res) => {
+  res.clearCookie("user_id");
+  res.redirect("/urls");
 });
 
 //JSON string representing the entire urlDatabase object, 
@@ -95,15 +134,6 @@ app.get('/urls.json', (req, res) => {
   res.json(urlDatabase);
 });
 
-function generateRandomString() {
-  let result = '';
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  const charactersLength = characters.length;
-  for (let i = 0; i < 6; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-  }
-  return result;
-}
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port${PORT}!`);
