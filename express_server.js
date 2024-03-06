@@ -1,6 +1,8 @@
 const express = require('express');
 const app = express();
 const PORT = 8080; //default port 8080
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
 
 //Usee EJS as templating engine
 app.set("view engine", "ejs");
@@ -45,9 +47,13 @@ app.post("/login", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const templateVars = {urls: urlDatabase};
+  const templateVars = {
+    username: req.cookies["username"],
+    urls: urlDatabase
+  };
   res.render("urls_index", templateVars);
 });
+
 
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
