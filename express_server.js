@@ -54,10 +54,13 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:id", (req, res) => {
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id]}
-   res.render("urls_show", templateVars);
+  const templateVars = {
+    user: users[req.cookies["user_id"]],
+    id: req.params.id,
+    longURL: urlDatabase[req.params.id]
+  };
+  res.render("urls_show", templateVars);
 });
-
 // Route handler for handling requests to shortened URLs
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id]; // Retrieve long URL from urlDatabase
