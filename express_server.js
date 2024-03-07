@@ -50,7 +50,7 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  res.render("urls_new", {user: null});
 });
 
 app.get("/urls/:id", (req, res) => {
@@ -98,11 +98,11 @@ app.post('/urls/:id/delete', (req, res) => {
 });
 
 app.get('/login', (req, res) => {
-  res.render("login");
+  res.render("login", {user: null});
 })
 
 app.get('/register', (req, res) => {
-  res.render("register");
+  res.render("register", {user: null});
 })
 
 app.post("/login", (req, res) => {
