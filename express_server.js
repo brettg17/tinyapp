@@ -108,6 +108,16 @@ app.post("/login", (req, res) => {
 
 app.post('/register', (req, res) => {
   const { email, password } = req.body;
+  
+  if (email === "" || password === "") {
+    return res.status(400).send("neither Email or password fields can be an empty string");
+  }
+  for (const userId in users) {
+    if (users[userId].email === email) {
+      return res.status(400).send("This user already exists")
+    }
+  }
+
   const userId = generateRandomString();
 
   const newUser = {
@@ -115,7 +125,9 @@ app.post('/register', (req, res) => {
     email,
     password
   };
+  
 
+  
   users[userId] = newUser;
 
   res.cookie("user_id", userId);
