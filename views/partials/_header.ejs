@@ -18,5 +18,19 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
+    <div class="navbar-nav ml-auto">
+    <% if (user) { %>
+    <form method="POST" action="/logout" class="nav-item">
+      <span class="navbar-text mr-2">Logged in as <%= user.email %></span>
+      <button type="submit" class="btn btn-link nav-link">Logout</button>
+    </form>
+    <% } else { %>
+      <a class="nav-item nav-link" href="/register">Register</a>
+      <a class="nav-item nav-link" href="/login">Login</a>
+    <% } %>
+  </div>
   </nav>
 </header>
+
+
+
