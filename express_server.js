@@ -65,10 +65,8 @@ app.get("/urls/:id", (req, res) => {
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id]; // Retrieve long URL from urlDatabase
   if (longURL) {
-    // If the long URL exists, redirect to it
     res.redirect(longURL);
   } else {
-    // If the long URL doesn't exist, send a 404 Not Found response
     res.status(404).send("URL not found");
   }
 });
@@ -109,7 +107,20 @@ app.get('/register', (req, res) => {
 })
 
 app.post("/login", (req, res) => {
-  res.cookie("username", req.body.username);
+  const { email, password } = req.body;
+
+  // Check if user with given email exists
+  const user = Object.values(users).find(user => user.email === email);
+
+  if (!user) {
+    return res.status(403).send("User with that email not found");
+  }
+  if (user.password !== password) {
+    return res.status(403).send("Incorrect password");
+  }
+
+  // Set user_id cookie with the matching user's random ID
+  res.cookie("user_id", user.id);
   res.redirect("/urls");
 });
 
@@ -144,7 +155,7 @@ app.post('/register', (req, res) => {
 
 app.post("/logout", (req,res) => {
   res.clearCookie("user_id");
-  res.redirect("/urls");
+  res.redirect("/login");
 });
 
 //JSON string representing the entire urlDatabase object, 
