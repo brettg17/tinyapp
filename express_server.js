@@ -120,11 +120,9 @@ app.post("/login", (req, res) => {
   // Check if user with given email exists
   const user = Object.values(users).find(user => user.email === email);
 
-  if (!user) {
-    return res.status(403).send("User with that email not found");
-  }
-  if (user.password !== password) {
-    return res.status(403).send("Incorrect password");
+  //if either username or password are incorrect return status code 403
+  if (!user || user.password !== password) {
+    return res.status(403).send("Incorrect username or password...");
   }
 
   // Set user_id cookie with random ID for user
@@ -134,19 +132,20 @@ app.post("/login", (req, res) => {
 
 //route to handle registration
 app.post('/register', (req, res) => {
+  //extract email and password from request body
   const { email, password } = req.body;
-  
+  //if email or password incorrect then return status 400
   if (email === "" || password === "") {
     return res.status(400).send("neither Email or password fields can be an empty string");
   }
+  //check if the user exists snd return status 400 if they do.
   for (const userId in users) {
     if (users[userId].email === email) {
       return res.status(400).send("This user already exists")
     }
   }
-
+  //if unique email and password is not empty create new user. random string (6 characters) is created for id.
   const userId = generateRandomString();
-
   const newUser = {
     id: userId,
     email,
