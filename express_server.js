@@ -37,10 +37,12 @@ const users = {
   },
 };
 
+//route that will display "hello" when program initialized
 app.get('/', (req, res) => {
   res.send("Hello!");
 });
 
+//route displays urls
 app.get("/urls", (req, res) => {
   const templateVars = {
     user: users[req.cookies["user_id"]],
@@ -49,9 +51,11 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+//route allows user to create a new url
 app.get("/urls/new", (req, res) => {
   res.render("urls_new", {user: null});
 });
+
 
 app.get("/urls/:id", (req, res) => {
   const templateVars = {
@@ -71,6 +75,7 @@ app.get("/u/:id", (req, res) => {
   }
 });
 
+// create a new url
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString(); // Generate short URL
   const longURL = req.body.longURL; // Extract long URL from request body
@@ -78,10 +83,10 @@ app.post("/urls", (req, res) => {
   // Save shortURL-longURL pair to urlDatabase
   urlDatabase[shortURL] = longURL;
 
-  // Respond with a redirect to /urls/:id
   res.redirect(`/urls/${shortURL}`);
 });
 
+//update a url
 app.post("/urls/:id", (req, res) => {
   const idToUpdate = req.params.id;
   const updatedURL = req.body.longURL;
@@ -91,21 +96,24 @@ app.post("/urls/:id", (req, res) => {
   res.redirect("/urls");
 
 })
-
+//delete url from database
 app.post('/urls/:id/delete', (req, res) => {
   const idToDelete = req.params.id;
   delete urlDatabase[idToDelete];
   res.redirect('/urls');
 });
 
+//route to login page
 app.get('/login', (req, res) => {
   res.render("login", {user: null});
 })
 
+//route to register page
 app.get('/register', (req, res) => {
   res.render("register", {user: null});
 })
 
+//route to login
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
 
@@ -119,11 +127,12 @@ app.post("/login", (req, res) => {
     return res.status(403).send("Incorrect password");
   }
 
-  // Set user_id cookie with the matching user's random ID
+  // Set user_id cookie with random ID for user
   res.cookie("user_id", user.id);
   res.redirect("/urls");
 });
 
+//route to handle registration
 app.post('/register', (req, res) => {
   const { email, password } = req.body;
   
@@ -144,15 +153,13 @@ app.post('/register', (req, res) => {
     password
   };
   
-
-  
   users[userId] = newUser;
 
   res.cookie("user_id", userId);
   res.redirect("/urls")
 
 });
-
+//route to logout
 app.post("/logout", (req,res) => {
   res.clearCookie("user_id");
   res.redirect("/login");
