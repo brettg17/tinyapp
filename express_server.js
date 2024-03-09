@@ -53,7 +53,12 @@ app.get("/urls", (req, res) => {
 
 //route allows user to create a new url
 app.get("/urls/new", (req, res) => {
+  if (!req.cookies["user_id"]) {
+    res.redirect('/login')
+  }
+  else {
   res.render("urls_new", {user: null});
+  }
 });
 
 
@@ -77,13 +82,20 @@ app.get("/u/:id", (req, res) => {
 
 // create a new url
 app.post("/urls", (req, res) => {
-  const shortURL = generateRandomString(); // Generate short URL
-  const longURL = req.body.longURL; // Extract long URL from request body
+    // Check if the user is logged in
+  if (!req.cookies["user_id"]) {
+    res.status(403).send("You need to be logged in to shorten URLs");
+  } 
+  else {
+    // Generate short URL and extract long URL from request body
+    const shortURL = generateRandomString();
+    const longURL = req.body.longURL;
 
-  // Save shortURL-longURL pair to urlDatabase
-  urlDatabase[shortURL] = longURL;
+    // Save shortURL-longURL pair to urlDatabase
+    urlDatabase[shortURL] = longURL;
 
-  res.redirect(`/urls/${shortURL}`);
+    res.redirect(`/urls/${shortURL}`);
+    }
 });
 
 //update a url
@@ -105,12 +117,22 @@ app.post('/urls/:id/delete', (req, res) => {
 
 //route to login page
 app.get('/login', (req, res) => {
+  if (req.cookies["user_id"]) {
+    res.redirect('/urls')
+  }
+  else {
   res.render("login", {user: null});
+  }
 })
 
 //route to register page
 app.get('/register', (req, res) => {
+  if (req.cookies["user_id"]) {
+    res.redirect('/urls')
+  }
+  else {
   res.render("register", {user: null});
+  }
 })
 
 //route to login
