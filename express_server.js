@@ -42,11 +42,18 @@ app.get('/', (req, res) => {
   res.send("Hello!");
 });
 
-//route displays urls
+// Route to display URLs
 app.get("/urls", (req, res) => {
+  const userID = req.cookies["user_id"];
+  const userURLs = {};
+  for (const shortURL in urlDatabase) {
+    if (urlDatabase[shortURL].userID === userID) {
+      userURLs[shortURL] = urlDatabase[shortURL];
+    }
+  }
   const templateVars = {
-    user: users[req.cookies["user_id"]],
-    urls: urlDatabase
+    user: users[userID],
+    urls: userURLs
   };
   res.render("urls_index", templateVars);
 });
@@ -82,35 +89,47 @@ app.get("/u/:id", (req, res) => {
 
 // create a new url
 app.post("/urls", (req, res) => {
-    // Check if the user is logged in
   if (!req.cookies["user_id"]) {
     res.status(403).send("You need to be logged in to shorten URLs");
-  } 
-  else {
-    // Generate short URL and extract long URL from request body
+  } else {
     const shortURL = generateRandomString();
     const longURL = req.body.longURL;
+    const userID = req.cookies["user_id"]; // Get the logged-in user's ID
 
-    // Save shortURL-longURL pair to urlDatabase
-    urlDatabase[shortURL] = longURL;
+    // Save shortURL-longURL pair along with userID to urlDatabase
+    urlDatabase[shortURL] = { longURL, userID };
 
     res.redirect(`/urls/${shortURL}`);
-    }
+  }
 });
 
-//update a url
+// Update a url
 app.post("/urls/:id", (req, res) => {
+  const userID = req.cookies["user_id"];
   const idToUpdate = req.params.id;
   const updatedURL = req.body.longURL;
 
-  urlDatabase[idToUpdate] = updatedURL;
+  // Check if the URL being updated belongs to the logged-in user
+  if (urlDatabase[idToUpdate].userID !== userID) {
+    return res.status(403).send("You don't have permission to update this URL");
+  }
+
+  urlDatabase[idToUpdate].longURL = updatedURL;
 
   res.redirect("/urls");
+});
 
-})
-//delete url from database
+
+// Delete url from database
 app.post('/urls/:id/delete', (req, res) => {
+  const userID = req.cookies["user_id"];
   const idToDelete = req.params.id;
+
+  // Check if the URL being deleted belongs to the logged-in user
+  if (urlDatabase[idToDelete].userID !== userID) {
+    return res.status(403).send("You don't have permission to delete this URL");
+  }
+
   delete urlDatabase[idToDelete];
   res.redirect('/urls');
 });
