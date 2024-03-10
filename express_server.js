@@ -51,6 +51,7 @@ app.get('/', (req, res) => {
 // Route to display URLs
 app.get("/urls", (req, res) => {
   const userID = req.cookies["user_id"];
+  
   const userURLs = {};
   for (const shortURL in urlDatabase) {
     if (urlDatabase[shortURL].userID === userID) {
@@ -161,6 +162,7 @@ app.get('/register', (req, res) => {
 })
 
 //route to login
+// Route to login
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
 
@@ -172,38 +174,45 @@ app.post("/login", (req, res) => {
     return res.status(403).send("Incorrect username or password...");
   }
 
-  // Set user_id cookie with random ID for user
   res.cookie("user_id", user.id);
   res.redirect("/urls");
 });
 
-//route to handle registration
+// Route to handle registration
 app.post('/register', (req, res) => {
-  //extract email and password from request body
+  // Extract email and password from request body
   const { email, password } = req.body;
-  //if email or password incorrect then return status 400
+  
+  // If email or password is empty, return status 400
   if (email === "" || password === "") {
-    return res.status(400).send("neither Email or password fields can be an empty string");
+    return res.status(400).send("Neither Email nor password fields can be an empty string");
   }
-  //check if the user exists snd return status 400 if they do.
+  
+  // Check if the user exists and return status 400 if they do
   for (const userId in users) {
     if (users[userId].email === email) {
       return res.status(400).send("This user already exists")
     }
   }
-  //if unique email and password is not empty create new user. random string (6 characters) is created for id.
+  
+  // Generate a random user ID
   const userId = generateRandomString();
+  
+  // Create a new user object
   const newUser = {
     id: userId,
     email,
     password
   };
   
+  // Add the new user to the users object
   users[userId] = newUser;
-
+  
+  // Set user_id cookie with the generated ID
   res.cookie("user_id", userId);
-  res.redirect("/urls")
-
+  
+  // Redirect to /urls
+  res.redirect("/urls");
 });
 //route to logout
 app.post("/logout", (req,res) => {
