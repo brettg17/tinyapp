@@ -99,10 +99,6 @@ app.get("/urls/:id", (req, res) => {
 // Route handler for handling requests to shortened URLs
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id].longURL; // Retrieve long URL from urlDatabase
-  console.log("long URL", longURL);
-  console.log("req", req.params.id);
-  console.log("url database", urlDatabase);
-  console.log("database", urlDatabase["b6UTxQ"])
   if (longURL) {
     if (longURL.startsWith("http://") || longURL.startsWith("https://")) {
       res.redirect(longURL);
