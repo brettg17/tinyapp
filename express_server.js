@@ -53,6 +53,7 @@ function urlsForUser(id) {
   }
   return userURLs;
 }
+
 //route that will display "hello" when program initialized
 app.get('/', (req, res) => {
   res.send("Hello!");
@@ -86,7 +87,6 @@ app.get("/urls/new", (req, res) => {
   }
 });
 
-
 app.get("/urls/:id", (req, res) => {
   const templateVars = {
     user: users[req.cookies["user_id"]],
@@ -95,11 +95,19 @@ app.get("/urls/:id", (req, res) => {
   };
   res.render("urls_show", templateVars);
 });
+
 // Route handler for handling requests to shortened URLs
 app.get("/u/:id", (req, res) => {
-  const longURL = urlDatabase[req.params.id]; // Retrieve long URL from urlDatabase
+  const longURL = urlDatabase[req.params.id].longURL; // Retrieve long URL from urlDatabase
+  console.log("long URL", longURL);
+  console.log("req", req.params.id);
+  console.log("url database", urlDatabase);
+  console.log("database", urlDatabase["b6UTxQ"])
   if (longURL) {
-    res.redirect(longURL);
+    if (longURL.startsWith("http://") || longURL.startsWith("https://")) {
+      res.redirect(longURL);
+    }
+    res.redirect("http://" + longURL);
   } else {
     res.status(404).send("URL not found");
   }
@@ -172,7 +180,6 @@ app.get('/register', (req, res) => {
   }
 })
 
-//route to login
 // Route to login
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
