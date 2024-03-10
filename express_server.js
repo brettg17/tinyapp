@@ -43,6 +43,16 @@ const users = {
   },
 };
 
+// Function to filter URLs for a given user ID
+function urlsForUser(id) {
+  const userURLs = {};
+  for (const shortURL in urlDatabase) {
+    if (urlDatabase[shortURL].userID === id) {
+      userURLs[shortURL] = urlDatabase[shortURL];
+    }
+  }
+  return userURLs;
+}
 //route that will display "hello" when program initialized
 app.get('/', (req, res) => {
   res.send("Hello!");
@@ -52,12 +62,13 @@ app.get('/', (req, res) => {
 app.get("/urls", (req, res) => {
   const userID = req.cookies["user_id"];
   
-  const userURLs = {};
-  for (const shortURL in urlDatabase) {
-    if (urlDatabase[shortURL].userID === userID) {
-      userURLs[shortURL] = urlDatabase[shortURL];
-    }
+  if (!userID) {
+    // User is not logged in, render the login prompt
+    return res.render("login_prompt", { user: null });
   }
+
+  const userURLs = urlsForUser(userID);
+  
   const templateVars = {
     user: users[userID],
     urls: userURLs
