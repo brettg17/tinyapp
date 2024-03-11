@@ -88,11 +88,28 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:id", (req, res) => {
+  const userID = req.cookies["user_id"];
+  const user = users[userID];
+  // Ensuring we only proceed if the URL exists and belongs to the logged-in user.
+  const url = urlDatabase[req.params.id];
+  
+  if (!userID) {
+    // User is not logged in, render the login prompt
+    return res.render("login_prompt", { user: null });
+  }
+  
+  // Additionally, you may want to check if the URL exists and belongs to the user
+  if (!url || url.userID !== userID) {
+    // Handle the scenario where the URL doesn't exist or doesn't belong to the user
+    return res.status(403).send("URL not found or you don't have permission to view it.");
+  }
+
   const templateVars = {
-    user: users[req.cookies["user_id"]],
+    user,
     id: req.params.id,
-    longURL: urlDatabase[req.params.id]
+    longURL: url.longURL,
   };
+
   res.render("urls_show", templateVars);
 });
 
@@ -131,6 +148,16 @@ app.post("/urls/:id", (req, res) => {
   const idToUpdate = req.params.id;
   const updatedURL = req.body.longURL;
 
+    // Check if the URL exists
+    if (!urlDatabase[idToUpdate]) {
+      return res.status(404).send("URL not found");
+    }
+  
+    // Check if the user is logged in
+    if (!userID) {
+      return res.status(403).send("You need to be logged in to update URLs");
+    }
+
   // Check if the URL being updated belongs to the logged-in user
   if (urlDatabase[idToUpdate].userID !== userID) {
     return res.status(403).send("You don't have permission to update this URL");
@@ -146,6 +173,16 @@ app.post("/urls/:id", (req, res) => {
 app.post('/urls/:id/delete', (req, res) => {
   const userID = req.cookies["user_id"];
   const idToDelete = req.params.id;
+
+   // Check if the URL exists
+   if (!urlDatabase[idToDelete]) {
+    return res.status(404).send("URL not found");
+  }
+
+  // Check if the user is logged in
+  if (!userID) {
+    return res.status(403).send("You need to be logged in to delete URLs");
+  }
 
   // Check if the URL being deleted belongs to the logged-in user
   if (urlDatabase[idToDelete].userID !== userID) {
