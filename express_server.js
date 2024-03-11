@@ -3,6 +3,7 @@ const app = express();
 const PORT = 8080; //default port 8080
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
+const bcrypt = require("bcryptjs")
 
 //Usee EJS as templating engine
 app.set("view engine", "ejs");
@@ -214,14 +215,14 @@ app.get('/register', (req, res) => {
 })
 
 // Route to login
-app.post("/login", (req, res) => {
+app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   // Check if user with given email exists
   const user = Object.values(users).find(user => user.email === email);
 
   //if either username or password are incorrect return status code 403
-  if (!user || user.password !== password) {
+  if (!user || !(await bcrypt.compare(password, user.password))) {
     return res.status(403).send("Incorrect username or password...");
   }
 
@@ -230,9 +231,11 @@ app.post("/login", (req, res) => {
 });
 
 // Route to handle registration
-app.post('/register', (req, res) => {
+app.post('/register', async (req, res) => {
   // Extract email and password from request body
   const { email, password } = req.body;
+
+  const hashedPassword = await bcrypt.hash(password, 10);
   
   // If email or password is empty, return status 400
   if (email === "" || password === "") {
@@ -253,7 +256,7 @@ app.post('/register', (req, res) => {
   const newUser = {
     id: userId,
     email,
-    password
+    password: hashedPassword
   };
   
   // Add the new user to the users object
