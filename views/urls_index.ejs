@@ -17,6 +17,11 @@
     <title>TinyApp</title>
   </head>
   <body>
+    <% if (!user) { %>
+      <div class="alert alert-warning" role="alert">
+        Please <a href="/login" class="alert-link">log in</a> to view your URLs.
+      </div>
+    <% } else { %>
     <%- include('partials/_header') %>
     <main style="margin: 1em;">
       <h3>My URLs</h3>
@@ -32,8 +37,8 @@
         <tbody>
           <% for (let id in urls) { %>
             <tr>
-              <td><%= id %></td>
-              <td><%= urls[id] %></td>
+              <td><a href="/u/<%= id %>"><%= id %></a></td>
+              <td><%= urls[id].longURL %></td>
               <td>
                 <a href="/urls/<%= id %>">Edit</a>
             </td>
@@ -63,5 +68,6 @@
       integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
       crossorigin="anonymous"
     ></script>
+  <% } %>
   </body>
 </html>
