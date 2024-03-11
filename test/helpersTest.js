@@ -27,8 +27,8 @@ describe('getUserByEmail', function() {
     assert.property(user, 'email', 'user object should have an email property');
   });
 
-  it('should return undefined for non-existent email', function() {
+  it('should return unull for non-existent email', function() {
     const user = getUserByEmail("skaterboi_92@brap.com", testUsers);
-    assert.isUndefined(user);
+    assert.isNull(user);
   });
 });
