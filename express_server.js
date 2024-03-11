@@ -7,6 +7,7 @@ app.use(cookieSession( {
   keys: ["key1", "key2"]
 }));
 const bcrypt = require("bcryptjs")
+const { getUserByEmail } = require("./helper")
 
 //Usee EJS as templating engine
 app.set("view engine", "ejs");
@@ -221,8 +222,7 @@ app.get('/register', (req, res) => {
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
-  // Check if user with given email exists
-  const user = Object.values(users).find(user => user.email === email);
+  const user = getUserByEmail(email, users);
 
   //if either username or password are incorrect return status code 403
   if (!user || !(await bcrypt.compare(password, user.password))) {
