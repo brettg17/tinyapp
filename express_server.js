@@ -1,8 +1,11 @@
 const express = require('express');
 const app = express();
 const PORT = 8080; //default port 8080
-const cookieParser = require('cookie-parser');
-app.use(cookieParser());
+const cookieSession = require('cookie-session');
+app.use(cookieSession( {
+  name: "session",
+  keys: ["key1", "key2"]
+}));
 const bcrypt = require("bcryptjs")
 
 //Usee EJS as templating engine
@@ -62,7 +65,7 @@ app.get('/', (req, res) => {
 
 // Route to display URLs
 app.get("/urls", (req, res) => {
-  const userID = req.cookies["user_id"];
+  const userID = req.session.user_id;
   
   if (!userID) {
     // User is not logged in, render the login prompt
@@ -80,16 +83,16 @@ app.get("/urls", (req, res) => {
 
 //route allows user to create a new url
 app.get("/urls/new", (req, res) => {
-  if (!req.cookies["user_id"]) {
+  if (!req.session.user_id) {
     res.redirect('/login')
   }
   else {
-  res.render("urls_new", {user: null});
+  res.render("urls_new", { user: users[req.session.user_id] });
   }
 });
 
 app.get("/urls/:id", (req, res) => {
-  const userID = req.cookies["user_id"];
+  const userID = req.session.user_id;
   const user = users[userID];
   // Ensuring we only proceed if the URL exists and belongs to the logged-in user.
   const url = urlDatabase[req.params.id];
@@ -129,12 +132,12 @@ app.get("/u/:id", (req, res) => {
 
 // create a new url
 app.post("/urls", (req, res) => {
-  if (!req.cookies["user_id"]) {
+  if (!req.session.user_id) {
     res.status(403).send("You need to be logged in to shorten URLs");
   } else {
     const shortURL = generateRandomString();
     const longURL = req.body.longURL;
-    const userID = req.cookies["user_id"]; // Get the logged-in user's ID
+    const userID = req.session.user_id; // Get the logged-in user's ID
 
     // Save shortURL-longURL pair along with userID to urlDatabase
     urlDatabase[shortURL] = { longURL, userID };
@@ -145,7 +148,7 @@ app.post("/urls", (req, res) => {
 
 // Update a url
 app.post("/urls/:id", (req, res) => {
-  const userID = req.cookies["user_id"];
+  const userID = req.session.user_id;
   const idToUpdate = req.params.id;
   const updatedURL = req.body.longURL;
 
@@ -172,7 +175,7 @@ app.post("/urls/:id", (req, res) => {
 
 // Delete url from database
 app.post('/urls/:id/delete', (req, res) => {
-  const userID = req.cookies["user_id"];
+  const userID = req.session.user_id;
   const idToDelete = req.params.id;
 
    // Check if the URL exists
@@ -196,7 +199,7 @@ app.post('/urls/:id/delete', (req, res) => {
 
 //route to login page
 app.get('/login', (req, res) => {
-  if (req.cookies["user_id"]) {
+  if (req.session.user_id) {
     res.redirect('/urls')
   }
   else {
@@ -206,7 +209,7 @@ app.get('/login', (req, res) => {
 
 //route to register page
 app.get('/register', (req, res) => {
-  if (req.cookies["user_id"]) {
+  if (req.session.user_id) {
     res.redirect('/urls')
   }
   else {
@@ -226,7 +229,7 @@ app.post("/login", async (req, res) => {
     return res.status(403).send("Incorrect username or password...");
   }
 
-  res.cookie("user_id", user.id);
+  req.session.user_id = user.id;
   res.redirect("/urls");
 });
 
@@ -263,14 +266,14 @@ app.post('/register', async (req, res) => {
   users[userId] = newUser;
   
   // Set user_id cookie with the generated ID
-  res.cookie("user_id", userId);
+  req.session.user_id = userId;
   
   // Redirect to /urls
   res.redirect("/urls");
 });
 //route to logout
 app.post("/logout", (req,res) => {
-  res.clearCookie("user_id");
+  req.session.user_id = null;
   res.redirect("/login");
 });
 
