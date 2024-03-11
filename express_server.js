@@ -2,17 +2,20 @@ const express = require('express');
 const app = express();
 const PORT = 8080; //default port 8080
 const cookieSession = require('cookie-session');
+const bcrypt = require("bcryptjs");
+const { getUserByEmail } = require("./helper")
+
+app.use(express.urlencoded({ extended: true }));
+
 app.use(cookieSession( {
   name: "session",
   keys: ["key1", "key2"]
 }));
-const bcrypt = require("bcryptjs")
 
-//Usee EJS as templating engine
+//Use EJS as templating engine
 app.set("view engine", "ejs");
 
-app.use(express.urlencoded({ extended: true }));
-
+//generate random 6 character string
 function generateRandomString() {
   let result = '';
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -119,7 +122,7 @@ app.get("/urls/:id", (req, res) => {
 
 // Route handler for handling requests to shortened URLs
 app.get("/u/:id", (req, res) => {
-  const longURL = urlDatabase[req.params.id].longURL; // Retrieve long URL from urlDatabase
+  const longURL = urlDatabase[req.params.id].longURL; 
   if (longURL) {
     if (longURL.startsWith("http://") || longURL.startsWith("https://")) {
       res.redirect(longURL);
@@ -221,8 +224,7 @@ app.get('/register', (req, res) => {
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
-  // Check if user with given email exists
-  const user = Object.values(users).find(user => user.email === email);
+  const user = getUserByEmail(email, users);
 
   //if either username or password are incorrect return status code 403
   if (!user || !(await bcrypt.compare(password, user.password))) {
