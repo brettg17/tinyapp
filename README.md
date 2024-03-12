@@ -28,3 +28,7 @@ TinyApp is a full stack web application built with Node and Express that allows 
 - Shorten long URLs to a unique short URL.
 - View a list of your shortened URLs.
 - Edit or delete your shortened URLs.
+- 
+## Special Thanks
+
+Thank you to Lighthouse labs for the learning opportunity
