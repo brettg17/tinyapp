@@ -63,7 +63,7 @@ function urlsForUser(id) {
 
 //route that will display "hello" when program initialized
 app.get('/', (req, res) => {
-  res.send("Hello!");
+  res.redirect("/urls");
 });
 
 // Route to display URLs
